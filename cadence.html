@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14213d">
+<meta name="color-scheme" content="light dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cadence">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23e4572e'/%3E%3Ccircle cx='50' cy='50' r='28' fill='none' stroke='white' stroke-width='7'/%3E%3Cpath d='M50 32v20l13 8' fill='none' stroke='white' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E">
+<title>Cadence</title>
+<script>try{var t=localStorage.getItem("cadence-theme-v1");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<style>
+  :root {
+    --bg: #f3f0e8; --ink: #14213d; --muted: #6b7280; --line: #d9d4c7;
+    --accent: #e4572e; --card: #fffdf8; --on: #2a9d8f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #0e1626; --ink: #f1eee6; --muted: #9aa3b2; --line: #26324a; --card: #15203a; }
+  }
+  :root[data-theme="dark"] { --bg: #0e1626; --ink: #f1eee6; --muted: #9aa3b2; --line: #26324a; --card: #15203a; color-scheme: dark; }
+  :root[data-theme="light"] { color-scheme: light; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+    -webkit-text-size-adjust: 100%; touch-action: manipulation; overscroll-behavior-y: contain; }
+  button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
+  main { max-width: 520px; margin: 0 auto; padding: calc(16px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) calc(48px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+  #top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 14px; }
+  h1 { font-size: 1.1rem; font-weight: 600; margin: 0; color: var(--muted); }
+  #theme { flex: none; border: 1.5px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px;
+    min-height: 40px; padding: 0 14px; font-size: .9rem; cursor: pointer; white-space: nowrap; }
+  h2 { font-size: 1rem; font-weight: 600; margin: 34px 0 6px; color: var(--muted); }
+  #record {
+    width: 100%; min-height: 96px; border: 0; border-radius: 24px; padding: 24px 16px; box-shadow: 0 6px 0 rgba(0,0,0,.18);
+    background: var(--accent); color: #fff; font-size: 1.5rem; font-weight: 700;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  #record:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,.18); }
+  #xinfo { margin: 16px 2px 8px; color: var(--muted); min-height: 1.4em; }
+  #xinfo b { color: var(--ink); font-size: 1.15rem; }
+  #noteWrap { display: none; margin-bottom: 14px; }
+  #noteWrap.show { display: block; }
+  #note { width: 100%; min-height: 76px; resize: vertical; border: 1.5px solid var(--line); border-radius: 14px;
+    background: var(--card); color: var(--ink); font: inherit; font-size: 1rem; padding: 12px; }
+  #note:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  #saved { font-size: .8rem; color: var(--muted); height: 1.2em; margin: 4px 2px 0; }
+  #interval { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0 0 16px; color: var(--muted); }
+  #interval input { width: 84px; min-height: 48px; text-align: center; font: inherit; font-size: 1.25rem; font-weight: 700;
+    border: 1.5px solid var(--line); border-radius: 14px; background: var(--card); color: var(--ink); }
+  #interval input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  button.step { width: 48px; height: 48px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--card);
+    color: var(--ink); font-size: 1.5rem; line-height: 1; cursor: pointer; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  #list li { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; padding: 12px 2px; border-bottom: 1px solid var(--line); }
+  li.past { opacity: .45; }
+  .time { font-size: 1.7rem; font-weight: 700; font-variant-numeric: tabular-nums; flex: 1 1 130px; }
+  .time small { display: block; font-size: .78rem; font-weight: 500; color: var(--muted); }
+  button.act { border: 1.5px solid var(--line); background: var(--card); color: var(--ink);
+    border-radius: 999px; padding: 0 18px; min-height: 46px; font-size: 1rem; cursor: pointer; white-space: nowrap; }
+  button.act.on { background: var(--on); border-color: var(--on); color: #fff; }
+  button.link { border: 0; background: none; color: var(--muted); font-size: .9rem; text-decoration: underline; padding: 0 8px; min-height: 46px; cursor: pointer; white-space: nowrap; }
+  #hint { margin-top: 18px; color: var(--muted); font-size: .85rem; line-height: 1.5; }
+  #hist li { display: flex; align-items: center; gap: 6px; padding: 8px 8px 8px 10px; min-height: 56px; border-bottom: 1px solid var(--line);
+    border-left: 4px solid transparent; cursor: pointer; }
+  #hist li.sel { border-left-color: var(--accent); background: var(--card); }
+  #hist .when { font-weight: 600; font-variant-numeric: tabular-nums; }
+  #hist .n { color: var(--muted); font-size: .9rem; margin-top: 2px; overflow-wrap: anywhere; white-space: pre-wrap; }
+  #hist .grow { flex: 1; min-width: 0; }
+  #histActions { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+  #export { color: var(--muted); font-size: .85rem; }
+  #ring { position: fixed; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center;
+    gap: 24px; background: var(--accent); color: #fff; z-index: 10; text-align: center; padding: 24px; }
+  #ring.show { display: flex; }
+  #ring h2 { font-size: 3rem; margin: 0; color: #fff; }
+  #ring button { border: 0; border-radius: 999px; padding: 24px 64px; font-size: 1.5rem; font-weight: 700; background: #fff; color: var(--accent); }
+  @media (max-width: 380px) { .time { font-size: 1.5rem; } #record { font-size: 1.3rem; } }
+  @media (hover: none) { button:hover { filter: none; } }
+</style>
+</head>
+<body>
+<main>
+  <div id="top"><h1 id="title">Cadence · every 3 hours</h1><button id="theme" aria-label="Change colour theme">◐ Auto</button></div>
+  <div id="interval">
+    <span>Repeat every</span>
+    <button class="step" id="dec" aria-label="Fewer hours">−</button>
+    <input id="hours" type="number" inputmode="decimal" min="0.5" max="24" step="0.5" value="3" aria-label="Hours between times">
+    <button class="step" id="inc" aria-label="More hours">+</button>
+    <span>hours</span>
+  </div>
+  <button id="record">Record time now</button>
+  <div id="xinfo">No time recorded yet.</div>
+  <div id="noteWrap">
+    <textarea id="note" placeholder="Add a note for this time (saved automatically)"></textarea>
+    <div id="saved"></div>
+  </div>
+  <ul id="list"></ul>
+  <p id="hint"></p>
+
+  <h2 id="histTitle" hidden>History</h2>
+  <ul id="hist"></ul>
+  <div id="histActions"><a id="export" href="/export.csv" hidden>Download all history as CSV</a><button id="clearAll" class="link" hidden>Clear history</button></div>
+</main>
+<div id="ring"><h2 id="ringTime"></h2><div>Alarm</div><button id="stop">Stop</button></div>
+
+<script>
+const DEF_H = 3, MAX_SLOTS = 48;            // slots cover 24 h from X
+const HKEY = "three-hour-default-h-v1";
+const AKEY = "three-hour-alarms-v2";         // alarms stay per device
+const fmt = d => d.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
+const fmtDay = d => d.toLocaleDateString([], {weekday: "short", day: "numeric", month: "short"});
+const isAndroid = /android/i.test(navigator.userAgent);
+const $ = id => document.getElementById(id);
+
+let entries = [];                            // from the PC, newest first
+let selId = null;
+let defH = (() => { try { return +localStorage.getItem(HKEY) || DEF_H; } catch { return DEF_H; } })();
+let alarms = loadAlarms();                   // { slotMs: {on:true, fired:bool} }
+function loadAlarms() { try { return JSON.parse(localStorage.getItem(AKEY)) || {}; } catch { return {}; } }
+function saveAlarms() { try { localStorage.setItem(AKEY, JSON.stringify(alarms)); } catch {} }
+
+/* ---------- server ---------- */
+async function api(path, body) {
+  const r = await fetch(path, body ? {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)} : {});
+  if (!r.ok) throw new Error(r.status);
+  return r.json();
+}
+function setEntries(list) {
+  entries = list.sort((a, b) => b.x - a.x);
+  if (!entries.find(e => e.id === selId)) selId = entries.length ? entries[0].id : null;
+}
+async function refresh() { try { setEntries(await api("/api/entries")); render(); } catch { $("xinfo").textContent = "Can't reach the PC. Is the script still running?"; } }
+
+const cur = () => entries.find(e => e.id === selId);
+const hoursOf = e => (e && +e.h) || defH;
+const fmtH = h => String(Math.round(h * 100) / 100);
+function slotsFor(e) {
+  if (!e) return [];
+  const h = hoursOf(e), n = Math.min(MAX_SLOTS, Math.max(1, Math.floor(24 / h + 1e-9)));
+  return Array.from({length: n}, (_, i) => e.x + Math.round((i + 1) * h * 3600e3));
+}
+const slots = () => slotsFor(cur());
+function dropAlarms(e) { slotsFor(e).forEach(ms => delete alarms[ms]); saveAlarms(); }
+
+/* ---------- sound ---------- */
+let ctx, beepTimer, wakeLock;
+function unlockAudio() {
+  try { ctx = ctx || new (window.AudioContext || window.webkitAudioContext)(); if (ctx.state === "suspended") ctx.resume(); } catch {}
+}
+function beep() {
+  if (!ctx) return;
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.type = "square"; o.frequency.value = 880;
+  g.gain.setValueAtTime(.25, ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + .35);
+  o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + .4);
+}
+function ring(ms) {
+  $("ringTime").textContent = fmt(new Date(ms));
+  $("ring").classList.add("show");
+  clearInterval(beepTimer);
+  const go = () => { beep(); if (navigator.vibrate) navigator.vibrate([300, 150, 300]); };
+  go(); beepTimer = setInterval(go, 1000);
+}
+$("stop").onclick = () => { clearInterval(beepTimer); $("ring").classList.remove("show"); if (navigator.vibrate) navigator.vibrate(0); };
+async function keepAwake() {
+  try { if ("wakeLock" in navigator && !wakeLock) { wakeLock = await navigator.wakeLock.request("screen"); wakeLock.onrelease = () => wakeLock = null; } } catch {}
+}
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") { refresh(); if (Object.values(alarms).some(a => a.on)) keepAwake(); }
+});
+
+/* ---------- phone alarm (Android) ---------- */
+function androidAlarm(ms) {
+  const d = new Date(ms), label = "Every " + fmtH(hoursOf(cur())) + " hours";
+  location.href = "intent:#Intent;action=android.intent.action.SET_ALARM;" +
+    "i.android.intent.extra.alarm.HOUR=" + d.getHours() + ";" +
+    "i.android.intent.extra.alarm.MINUTES=" + d.getMinutes() + ";" +
+    "S.android.intent.extra.alarm.MESSAGE=" + encodeURIComponent(label) + ";" +
+    "B.android.intent.extra.alarm.SKIP_UI=true;end";
+}
+
+/* ---------- render ---------- */
+function render() {
+  const e = cur();
+  const hNow = hoursOf(e);
+  $("title").textContent = "Cadence · every " + fmtH(hNow) + " hours"; document.title = "Cadence";
+  if (document.activeElement !== $("hours")) $("hours").value = fmtH(hNow);
+  const list = $("list"); list.innerHTML = "";
+  $("noteWrap").classList.toggle("show", !!e);
+  $("histTitle").hidden = $("export").hidden = $("clearAll").hidden = !entries.length;
+
+  if (!e) {
+    $("xinfo").textContent = "No time recorded yet.";
+    $("hint").textContent = "";
+  } else {
+    const x = new Date(e.x);
+    $("xinfo").innerHTML = "Recorded at <b>" + fmt(x) + "</b> on " + fmtDay(x);
+    if (document.activeElement !== $("note") && $("note").value !== (e.note || "")) $("note").value = e.note || "";
+    const now = Date.now();
+    slots().forEach((ms, i) => {
+      const d = new Date(ms), on = !!(alarms[ms] && alarms[ms].on);
+      const li = document.createElement("li");
+      if (ms < now) li.className = "past";
+      li.innerHTML = '<div class="time">' + fmt(d) + '<small>+' + fmtH((i + 1) * hNow) + ' h · ' + fmtDay(d) + '</small></div>';
+      const b = document.createElement("button");
+      b.className = "act" + (on ? " on" : ""); b.textContent = on ? "Alarm on" : "Set alarm";
+      b.onclick = () => {
+        unlockAudio();
+        if (on) delete alarms[ms]; else { alarms[ms] = {on: true, fired: false}; keepAwake(); }
+        saveAlarms(); render();
+      };
+      li.appendChild(b);
+      if (isAndroid) {
+        const c = document.createElement("button");
+        c.className = "link"; c.textContent = "Phone alarm";
+        c.onclick = () => androidAlarm(ms);
+        li.appendChild(c);
+      }
+      list.appendChild(li);
+    });
+    $("hint").textContent = "“Set alarm” rings inside this page, so keep it open with the screen on." +
+      (isAndroid ? " “Phone alarm” adds it to your clock app." : "");
+  }
+
+  const hist = $("hist"); hist.innerHTML = "";
+  entries.forEach(en => {
+    const d = new Date(en.x), li = document.createElement("li");
+    if (en.id === selId) li.className = "sel";
+    const g = document.createElement("div"); g.className = "grow";
+    const w = document.createElement("div"); w.className = "when"; w.textContent = fmtDay(d) + ", " + fmt(d);
+    g.appendChild(w);
+    if (en.note) { const n = document.createElement("div"); n.className = "n"; n.textContent = en.note; g.appendChild(n); }
+    li.appendChild(g);
+    const del = document.createElement("button");
+    del.className = "link"; del.textContent = "Remove";
+    del.onclick = async ev => {
+      ev.stopPropagation();
+      if (!confirm("Remove the entry from " + fmt(d) + " from this page?\n\nIt stays saved on the PC.")) return;
+      try { dropAlarms(en); setEntries(await api("/api/delete", {id: en.id})); render(); } catch { alert("Couldn't remove it."); }
+    };
+    li.appendChild(del);
+    li.onclick = () => { selId = en.id; $("note").value = en.note || ""; render(); };
+    hist.appendChild(li);
+  });
+}
+
+/* ---------- actions ---------- */
+$("record").onclick = async () => {
+  unlockAudio();
+  try {
+    const x = Date.now();
+    setEntries(await api("/api/add", {x, tz: new Date().getTimezoneOffset(), h: defH}));
+    selId = entries.find(e => e.x === x).id;
+    $("note").value = ""; render();
+  } catch { alert("Couldn't save. Is the script still running on your PC?"); }
+};
+
+function setHours(v) {
+  v = Math.min(24, Math.max(0.5, Math.round((+v || defH) * 100) / 100));
+  defH = v;
+  try { localStorage.setItem(HKEY, String(v)); } catch {}
+  const e = cur();
+  if (e && hoursOf(e) !== v) {
+    dropAlarms(e);                                   // old slot times no longer exist
+    e.h = v;
+    api("/api/interval", {id: e.id, h: v}).catch(() => alert("Couldn't save the interval. Check the connection."));
+  }
+  $("hours").value = fmtH(v);
+  render();
+}
+$("hours").addEventListener("change", () => setHours($("hours").value));
+$("dec").onclick = () => setHours(hoursOf(cur()) - 0.5);
+$("inc").onclick = () => setHours(hoursOf(cur()) + 0.5);
+
+$("clearAll").onclick = async () => {
+  if (!entries.length) return;
+  if (!confirm("Clear all " + entries.length + " entries from this page?\n\nThey stay saved on the PC (cadence_data.json).")) return;
+  try { entries.forEach(e => dropAlarms(e)); setEntries(await api("/api/clear", {})); render(); }
+  catch { alert("Couldn't clear. Check the connection."); }
+};
+
+let noteTimer;
+$("note").addEventListener("input", () => {
+  $("saved").textContent = "Saving…";
+  clearTimeout(noteTimer);
+  const id = selId, text = $("note").value;
+  noteTimer = setTimeout(async () => {
+    try {
+      const e = entries.find(x => x.id === id); if (e) e.note = text;
+      await api("/api/note", {id, note: text});
+      $("saved").textContent = "Saved on PC";
+      render();
+    } catch { $("saved").textContent = "Not saved. Check the connection."; }
+  }, 500);
+});
+
+setInterval(() => {
+  const now = Date.now();
+  for (const k of Object.keys(alarms)) {
+    const a = alarms[k];
+    if (a.on && !a.fired && now >= +k && now - +k < 10 * 60e3) { a.fired = true; saveAlarms(); ring(+k); render(); }
+  }
+}, 1000);
+setInterval(render, 60000);
+/* ---------- theme: Auto / Light / Dark ---------- */
+const TKEY = "cadence-theme-v1", THEMES = ["auto", "light", "dark"];
+const TLABEL = {auto: "◐ Auto", light: "☀ Light", dark: "☾ Dark"};
+const sysDark = window.matchMedia("(prefers-color-scheme: dark)");
+let theme = (() => { try { return localStorage.getItem(TKEY) || "auto"; } catch { return "auto"; } })();
+if (!THEMES.includes(theme)) theme = "auto";
+function applyTheme() {
+  const root = document.documentElement;
+  if (theme === "auto") root.removeAttribute("data-theme"); else root.setAttribute("data-theme", theme);
+  $("theme").textContent = TLABEL[theme];
+  const dark = theme === "dark" || (theme === "auto" && sysDark.matches);
+  document.querySelector('meta[name="theme-color"]').content = dark ? "#0e1626" : "#f3f0e8";
+}
+$("theme").onclick = () => {
+  theme = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
+  try { localStorage.setItem(TKEY, theme); } catch {}
+  applyTheme();
+};
+if (sysDark.addEventListener) sysDark.addEventListener("change", applyTheme);
+applyTheme();
+
+refresh();
+</script>
+</body>
+</html>

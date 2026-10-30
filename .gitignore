@@ -1,0 +1,23 @@
+# Cadence personal data
+cadence_data.json
+cadence_data.json.tmp
+three_hour_data.json
+ 
+# Cadence  self-signed https certificate and PRIVATE KEY
+cadence_cert.pem
+cadence_key.pem
+cadence_cert.ip
+ 
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+ 
+# Other
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+
